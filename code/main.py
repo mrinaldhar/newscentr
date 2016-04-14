@@ -67,6 +67,7 @@ class S(BaseHTTPRequestHandler):
 					if each not in stopWords:
 						title_keywords += " " + each
 				flag=0
+				URL = "http://ltrc.iiit.ac.in/NER/"+title_keywords
 				while flag<=5:
 					try:
 						title_keywords=translate(title_keywords)
@@ -83,6 +84,7 @@ class S(BaseHTTPRequestHandler):
 			try: 
 				print "Using Title: "+title_keywords
 				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(title_keywords)+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
+
 				content = urllib2.urlopen(URL).read()
 				videos = extract_links(content)
 
