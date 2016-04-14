@@ -14,6 +14,16 @@ smalldata = []
 
 # sys.setdefaultencoding('utf-8')
 
+def translate(word, to_langage="auto", langage="auto"):
+	agents = {'User-Agent':"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)"}
+	before_trans = 'class="t0">'
+	link = "http://translate.google.com/m?hl=%s&sl=%s&q=%s" % (to_langage, langage, word.replace(" ", "+"))
+	request = urllib2.Request(link, headers=agents)
+	page = urllib2.urlopen(request).read()
+	result = page[page.find(before_trans)+len(before_trans):]
+	result = result.split("<")[0]
+	return result
+
 '''
 Handler for the integrated web server interface
 '''
@@ -51,6 +61,16 @@ class S(BaseHTTPRequestHandler):
 			try: 
 				article_id = int(args["article_id"][0])
 				print "OK"
+				title_keywords=data[article_id]["title"].strip().strip('"').encode('utf-8')
+				flag=0
+				while flag<=5:
+					try:
+						title_keywords=translate(title_keywords)
+						flag+=1
+					except:
+						continue
+				title_keywords.replace(' ',',')
+				data[article_id]["title"]=title_keywords
 				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(re.sub(' +',' ',data[article_id]["keywords"].encode("ascii", "ignore")))+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
 				print URL
 				content = urllib2.urlopen(URL).read()
