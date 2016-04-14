@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
 <head>
-	<meta name="keywords" content="IRE,Information Retrieval and Extraction Course,IIIT-H,Major Project">
 	<title>NewsCENTR</title>
 	<style>
 	@font-face {
@@ -28,12 +27,8 @@
 		-moz-osx-font-smoothing: grayscale;
 	}
 	h1 {
-		font-size: 2em;
-		font-weight: normal;
+		font-size: 3em;
 		font-family: unitybold;
-	}
-	h2 {
-		font-weight: normal;
 	}
 	h3 {
 		font-size: 1.2em;
@@ -182,7 +177,7 @@
 		width: 75%;
 		height: 80%;
 		overflow: auto;
-		text-align: justify;
+		text-align: center;
 		padding-left: 50px;
 		padding-right: 50px;
 		box-sizing: border-box;
@@ -209,38 +204,24 @@
 		width: 100%    !important;
 	    height: 400px   !important;
 	}
-	hr {
-		width: 80%;
-	}
+	
 	</style>
 </head>
 <body>
 	<div id="top_bar">
 	<h1>News<span style="color: black;">CENTR</span></h1>
 </div>
+<!-- <div id="main_bar"> -->
+	<!-- <span id="logo_small">News<span style="color: black;">CENTR</span></span> -->
+	<!-- <input type="text" id="user_input" name="user_input" placeholder="What would you like to look for?" autocomplete="off" /> -->
+	<!-- <button id="process" onclick="getStringFromUser()">Search</button> -->
+<!-- </div> -->
+	<!-- <pre id="results"></pre> -->
 	<ul id="left_sidebar">
-		<li>Report</li>
-		<li>Video</li> 
-		<li>Presentation</li>
+
 	</ul>
 	<div id="container">
-		<br />
-		<h1>YouTube Video Extraction</h1>
-		<hr />
-		<br />
-		<h2>Introduction</h2>
-		Today many news channels are in YouTube publishing videos every day covering all the important events of the day. Many times Videos present more interesting information and highly engaging for news readers rather than an article. The project is about extracting videos related to a news article from YouTube. The videos can be directly uploaded by the news publisher or a user sharing the video about that event. It should be done for English as well as Indian Languages news articles.
-		<br />
-		<br />
-		<h2>Project Description</h2>
-		The two key challenges
-		1. How to get videos around the article published time and rank them in terms of relevancy
-		2. How to fit it in Indian Language case, the common case is article will be in Indian Language, whereas video
-		might be in English.
-		<br />
-		<br />
-		<h2>Dataset</h2>
-		Team was provided with news corpus for English and Indian Languages which will have potential video links in YouTube. 
+		Please select an article to read.
 	</div>
 	<div id="footer">Mrinal Dhar &bull; Shashank Agrawal &bull; Tanushri Sharma</div>
 	<script src="./files/jquery.js"></script>
