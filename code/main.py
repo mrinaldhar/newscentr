@@ -8,6 +8,7 @@ import cgi
 import urllib2
 import re
 
+stopWords = []
 data = []
 keywordIndex = {}
 smalldata = []
@@ -39,7 +40,6 @@ class S(BaseHTTPRequestHandler):
 	'''
 	def do_GET(self):
 		self._set_headers()
-		# reqPath = self.path.split("?query=")
 		args = {}
 		idx = self.path.find('?')
 		if idx >= 0:
@@ -58,31 +58,48 @@ class S(BaseHTTPRequestHandler):
 			last = args.get("last", 0)
 			self.wfile.write(json.dumps(data[int(last[0]):20+int(last[0])]))
 		elif rpath == '/getVideos':
-			try: 
-				article_id = int(args["article_id"][0])
-				print "OK"
-				title_keywords=data[article_id]["title"].strip().strip('"').encode('utf-8')
+			article_id = int(args["article_id"][0])
+			print "OK"
+			if not data[article_id].has_key("processed"):
+				original_title=data[article_id]["title"].strip().strip('"').encode('utf-8')
+				title_keywords = ""
+				for each in original_title.split(' '):
+					if each not in stopWords:
+						title_keywords += " " + each
 				flag=0
 				while flag<=5:
 					try:
 						title_keywords=translate(title_keywords)
+						# print flag + " got "+title_keywords
 						flag+=1
 					except:
 						continue
 				title_keywords.replace(' ',',')
 				data[article_id]["title"]=title_keywords
+			else:
+				title_keywords = data[article_id]["title"]
+			data[article_id]["processed"] = True
+			print data[article_id]["title"]
+			try: 
+				print "Using Title: "+title_keywords
+				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(title_keywords)+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
+				content = urllib2.urlopen(URL).read()
+				videos = extract_links(content)
+
 				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(re.sub(' +',' ',data[article_id]["keywords"].encode("ascii", "ignore")))+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
 				print URL
 				content = urllib2.urlopen(URL).read()
-				videos = extract_links(content)
+				videos.extend(extract_links(content))
+
 				query = re.sub(r'\W+', '', data[article_id]["url"])
 				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(query)+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
 				content = urllib2.urlopen(URL).read()
 				videos.extend(extract_links(content))
+
 				self.wfile.write(json.dumps(videos))
 			except KeyError:
-				query = re.sub(r'\W+', '', data[article_id]["url"])
-				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(query)+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
+				print "Using Title: "+title_keywords
+				URL = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&q="+urllib.quote_plus(title_keywords)+"&key=AIzaSyDlfXZ-dnk4K87LDNaTigVQwZ8i233bb8s&maxResults=10&type=video"
 				content = urllib2.urlopen(URL).read()
 				videos = extract_links(content)
 				self.wfile.write(json.dumps(videos))
@@ -110,6 +127,10 @@ def run_server(server_class=HTTPServer, handler_class=S, port=5005):
 
 
 def init(filename):
+	fp = open('hi.stop', 'r') 
+	global stopWords
+	for line in fp.readlines():
+		stopWords.append(line.strip('\n'))
 	fp = open(filename, 'r')
 	global data
 	global keywordIndex
@@ -129,15 +150,10 @@ def init(filename):
 			notfound += 1
 		parsed_line["id"] = textID
 		data.append(parsed_line)
-		# smalldata.append({"index": textID, "title": parsed_line["title"], "content": parsed_line["text"][0:50]})
 		textID += 1
-	# print data[0]["keywords"]
 	print notfound
 	c = mp.Process(target=run_server)				# HTTP server process
 	c.start()
-
-	# while 1:
-		# pass
 
 def extract_links(content):
 	content = json.loads(content)
